@@ -115,11 +115,13 @@ interface TestCardProps {
   record: TestfallErfassung;
   onEdit: (r: TestfallErfassung) => void;
   onDelete: (r: TestfallErfassung) => void;
+  onStatusChange: (r: TestfallErfassung, newStatus: StatusKey) => void;
 }
 
-function TestCard({ record, onEdit, onDelete }: TestCardProps) {
+function TestCard({ record, onEdit, onDelete, onStatusChange }: TestCardProps) {
   const f = record.fields;
   const testerName = [f.tester_vorname, f.tester_nachname].filter(Boolean).join(' ');
+  const currentStatus = getStatusKey(record);
 
   return (
     <div className="bg-white rounded-2xl border border-border shadow-sm p-4 space-y-3 hover:shadow-md transition-shadow">
@@ -179,6 +181,19 @@ function TestCard({ record, onEdit, onDelete }: TestCardProps) {
           <span className="font-medium">Fehler: </span>{f.fehler_beschreibung}
         </div>
       )}
+
+      <div className="flex flex-wrap gap-1 pt-1 border-t border-border/50">
+        {COLUMNS.filter(col => col.key !== currentStatus).map(col => (
+          <button
+            key={col.key}
+            onClick={() => onStatusChange(record, col.key)}
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium text-foreground bg-muted hover:bg-accent transition-colors"
+          >
+            {col.icon}
+            {col.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -189,9 +204,10 @@ interface KanbanColProps {
   onAdd: (statusKey: StatusKey) => void;
   onEdit: (r: TestfallErfassung) => void;
   onDelete: (r: TestfallErfassung) => void;
+  onStatusChange: (r: TestfallErfassung, newStatus: StatusKey) => void;
 }
 
-function KanbanCol({ column, records, onAdd, onEdit, onDelete }: KanbanColProps) {
+function KanbanCol({ column, records, onAdd, onEdit, onDelete, onStatusChange }: KanbanColProps) {
   return (
     <div className="flex flex-col min-w-[280px] max-w-[320px] w-full flex-1">
       <div className={`flex items-center justify-between px-4 py-3 rounded-t-2xl border-b-2 ${column.headerBg}`}>
@@ -219,7 +235,7 @@ function KanbanCol({ column, records, onAdd, onEdit, onDelete }: KanbanColProps)
           </div>
         ) : (
           records.map(r => (
-            <TestCard key={r.record_id} record={r} onEdit={onEdit} onDelete={onDelete} />
+            <TestCard key={r.record_id} record={r} onEdit={onEdit} onDelete={onDelete} onStatusChange={onStatusChange} />
           ))
         )}
       </div>
@@ -284,6 +300,16 @@ export default function DashboardOverview() {
     } else {
       await LivingAppsService.createTestfallErfassungEntry(fields);
     }
+    fetchAll();
+  }
+
+  async function handleStatusChange(record: TestfallErfassung, newStatus: StatusKey) {
+    const statusOpt = LOOKUP_OPTIONS['testfall_erfassung']?.teststatus?.find(o => o.key === newStatus);
+    if (!statusOpt) return;
+    await LivingAppsService.updateTestfallErfassungEntry(record.record_id, {
+      ...record.fields,
+      teststatus: statusOpt,
+    });
     fetchAll();
   }
 
@@ -424,6 +450,7 @@ export default function DashboardOverview() {
             onAdd={handleAdd}
             onEdit={handleEdit}
             onDelete={r => setDeleteTarget(r)}
+            onStatusChange={handleStatusChange}
           />
         ))}
       </div>
