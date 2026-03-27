@@ -360,7 +360,7 @@ export default function DashboardOverview() {
             <span className="text-xs font-medium text-foreground text-center">Fehler melden</span>
           </a>
           <a
-            href="#/testfall-erfassung"
+            href="#/intents/alle-testfaelle"
             className="flex flex-col items-center gap-2 group"
           >
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">

@@ -8,6 +8,7 @@ import TestfallErfassungPage from '@/pages/TestfallErfassungPage';
 
 const TestfallDurchfuehrenPage = lazy(() => import('@/pages/intents/TestfallDurchfuehrenPage'));
 const FehlerMeldenPage = lazy(() => import('@/pages/intents/FehlerMeldenPage'));
+const AlleTestfaellePage = lazy(() => import('@/pages/intents/AlleTestfaellePage'));
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
             <Route path="admin" element={<AdminPage />} />
             <Route path="intents/testfall-durchfuehren" element={<Suspense><TestfallDurchfuehrenPage /></Suspense>} />
             <Route path="intents/fehler-melden" element={<Suspense><FehlerMeldenPage /></Suspense>} />
+            <Route path="intents/alle-testfaelle" element={<Suspense><AlleTestfaellePage /></Suspense>} />
           </Route>
         </Routes>
       </ActionsProvider>
