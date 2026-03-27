@@ -17,7 +17,7 @@ import {
   IconAlertCircle, IconPlus, IconPencil, IconTrash, IconSearch,
   IconClipboardList, IconCircleCheck, IconClockHour4,
   IconBan, IconCalendar, IconUser, IconTag,
-  IconRocket, IconChevronRight, IconPlayerPlay, IconBug, IconList,
+  IconRocket, IconPlayerPlay, IconBug, IconList,
 } from '@tabler/icons-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -340,45 +340,33 @@ export default function DashboardOverview() {
           <IconRocket size={18} className="text-primary shrink-0" />
           <h2 className="text-base font-semibold text-foreground">ABLÄUFE</h2>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="flex flex-wrap gap-6">
           <a
             href="#/intents/testfall-durchfuehren"
-            className="bg-card border border-border border-l-4 border-l-primary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 min-w-0 overflow-hidden"
+            className="flex flex-col items-center gap-2 group"
           >
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <IconPlayerPlay size={20} className="text-primary" />
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+              <IconPlayerPlay size={28} className="text-primary" />
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="font-semibold text-sm text-foreground">Testfall durchführen</div>
-              <div className="text-xs text-muted-foreground mt-0.5 truncate">Testfall auswählen, Ergebnis erfassen und abschließen</div>
-            </div>
-            <IconChevronRight size={16} className="text-muted-foreground shrink-0" />
+            <span className="text-xs font-medium text-foreground text-center">Testfall durchführen</span>
           </a>
           <a
             href="#/intents/fehler-melden"
-            className="bg-card border border-border border-l-4 border-l-primary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 min-w-0 overflow-hidden"
+            className="flex flex-col items-center gap-2 group"
           >
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <IconBug size={20} className="text-primary" />
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+              <IconBug size={28} className="text-primary" />
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="font-semibold text-sm text-foreground">Fehler melden</div>
-              <div className="text-xs text-muted-foreground mt-0.5 truncate">Fehler dokumentieren, Priorität eskalieren und blockieren</div>
-            </div>
-            <IconChevronRight size={16} className="text-muted-foreground shrink-0" />
+            <span className="text-xs font-medium text-foreground text-center">Fehler melden</span>
           </a>
           <a
             href="#/testfall-erfassung"
-            className="bg-card border border-border border-l-4 border-l-primary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 min-w-0 overflow-hidden"
+            className="flex flex-col items-center gap-2 group"
           >
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <IconList size={20} className="text-primary" />
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+              <IconList size={28} className="text-primary" />
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="font-semibold text-sm text-foreground">Alle Testfälle anzeigen</div>
-              <div className="text-xs text-muted-foreground mt-0.5 truncate">Vollständige Liste aller erfassten Testfälle durchsuchen</div>
-            </div>
-            <IconChevronRight size={16} className="text-muted-foreground shrink-0" />
+            <span className="text-xs font-medium text-foreground text-center">Alle Testfälle</span>
           </a>
         </div>
       </div>
