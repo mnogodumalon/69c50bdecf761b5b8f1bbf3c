@@ -340,7 +340,7 @@ export default function DashboardOverview() {
           <IconRocket size={18} className="text-primary shrink-0" />
           <h2 className="text-base font-semibold text-foreground">ABLÄUFE</h2>
         </div>
-        <div className="flex flex-wrap gap-6">
+        <div className="grid grid-cols-3 gap-2">
           <a
             href="#/intents/testfall-durchfuehren"
             className="flex flex-col items-center gap-2 group"
