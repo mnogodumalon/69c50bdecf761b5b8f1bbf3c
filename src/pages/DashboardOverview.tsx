@@ -7,7 +7,6 @@ import { AI_PHOTO_SCAN, AI_PHOTO_LOCATION } from '@/config/ai-features';
 import { formatDate } from '@/lib/formatters';
 import { TestfallErfassungDialog } from '@/components/dialogs/TestfallErfassungDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { StatCard } from '@/components/StatCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -16,9 +15,9 @@ import {
 } from '@/components/ui/select';
 import {
   IconAlertCircle, IconPlus, IconPencil, IconTrash, IconSearch,
-  IconClipboardList, IconCircleCheck, IconClockHour4, IconAlertTriangle,
+  IconClipboardList, IconCircleCheck, IconClockHour4,
   IconBan, IconCalendar, IconUser, IconTag,
-  IconRocket, IconChevronRight, IconPlayerPlay, IconBug,
+  IconRocket, IconChevronRight, IconPlayerPlay, IconBug, IconList,
 } from '@tabler/icons-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -268,12 +267,6 @@ export default function DashboardOverview() {
     return map;
   }, [filtered]);
 
-  // KPI stats
-  const total = testfallErfassung.length;
-  const bestanden = testfallErfassung.filter(r => r.fields.testergebnis?.key === 'bestanden').length;
-  const fehlgeschlagen = testfallErfassung.filter(r => r.fields.testergebnis?.key === 'fehlgeschlagen').length;
-  const kritisch = testfallErfassung.filter(r => r.fields.prioritaet?.key === 'kritisch').length;
-
   function handleAdd(statusKey: StatusKey) {
     setDefaultStatus(statusKey);
     setEditRecord(null);
@@ -319,9 +312,9 @@ export default function DashboardOverview() {
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <IconRocket size={18} className="text-primary shrink-0" />
-          <h2 className="text-base font-semibold text-foreground">Workflows</h2>
+          <h2 className="text-base font-semibold text-foreground">ABLÄUFE</h2>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           <a
             href="#/intents/testfall-durchfuehren"
             className="bg-card border border-border border-l-4 border-l-primary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 min-w-0 overflow-hidden"
@@ -348,6 +341,19 @@ export default function DashboardOverview() {
             </div>
             <IconChevronRight size={16} className="text-muted-foreground shrink-0" />
           </a>
+          <a
+            href="#/testfall-erfassung"
+            className="bg-card border border-border border-l-4 border-l-primary rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 min-w-0 overflow-hidden"
+          >
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <IconList size={20} className="text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="font-semibold text-sm text-foreground">Alle Testfälle anzeigen</div>
+              <div className="text-xs text-muted-foreground mt-0.5 truncate">Vollständige Liste aller erfassten Testfälle durchsuchen</div>
+            </div>
+            <IconChevronRight size={16} className="text-muted-foreground shrink-0" />
+          </a>
         </div>
       </div>
 
@@ -361,34 +367,6 @@ export default function DashboardOverview() {
           <IconPlus size={16} className="shrink-0" />
           <span>Neuer Testfall</span>
         </Button>
-      </div>
-
-      {/* ── KPI Cards ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard
-          title="Gesamt"
-          value={String(total)}
-          description="Testfälle"
-          icon={<IconClipboardList size={18} className="text-muted-foreground" />}
-        />
-        <StatCard
-          title="Bestanden"
-          value={String(bestanden)}
-          description={total > 0 ? `${Math.round((bestanden / total) * 100)}% Erfolgsrate` : 'Keine Tests'}
-          icon={<IconCircleCheck size={18} className="text-green-500" />}
-        />
-        <StatCard
-          title="Fehlgeschlagen"
-          value={String(fehlgeschlagen)}
-          description="Testergebnisse mit Fehler"
-          icon={<IconAlertTriangle size={18} className="text-red-500" />}
-        />
-        <StatCard
-          title="Kritisch"
-          value={String(kritisch)}
-          description="Hohe Priorität"
-          icon={<IconAlertCircle size={18} className="text-orange-500" />}
-        />
       </div>
 
       {/* ── Filters ── */}
@@ -482,9 +460,6 @@ function DashboardSkeleton() {
           <Skeleton className="h-4 w-72" />
         </div>
         <Skeleton className="h-9 w-36" />
-      </div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}
       </div>
       <div className="flex gap-4 overflow-x-auto pb-4">
         {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-80 rounded-2xl min-w-[280px]" />)}
