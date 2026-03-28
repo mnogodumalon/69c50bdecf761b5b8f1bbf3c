@@ -40,6 +40,13 @@ const STATUS_COLORS: Record<string, string> = {
   blockiert: 'bg-red-100 text-red-700 border-red-200',
 };
 
+const STATUS_BAR: Record<string, string> = {
+  offen: 'bg-blue-400',
+  in_bearbeitung: 'bg-amber-400',
+  abgeschlossen: 'bg-green-500',
+  blockiert: 'bg-red-500',
+};
+
 export default function AlleTestfaellePage() {
   const { testfallErfassung, loading, error, fetchAll } = useDashboardData();
 
@@ -252,24 +259,22 @@ export default function AlleTestfaellePage() {
           {filtered.map(r => {
             const f = r.fields;
             const testerName = [f.tester_vorname, f.tester_nachname].filter(Boolean).join(' ');
-            const statusCls = STATUS_COLORS[f.teststatus?.key ?? ''] ?? 'bg-slate-100 text-slate-500 border-slate-200';
+            const statusBarCls = STATUS_BAR[f.teststatus?.key ?? ''] ?? 'bg-slate-300';
             const priorityCls = PRIORITY_COLORS[f.prioritaet?.key ?? ''] ?? '';
             const ergebnisCls = ERGEBNIS_COLORS[f.testergebnis?.key ?? ''] ?? '';
             return (
               <div
                 key={r.record_id}
-                className="bg-card border border-border rounded-2xl px-4 py-3 flex flex-wrap items-start gap-3 hover:shadow-sm transition-shadow"
+                className="bg-card border border-border rounded-2xl overflow-hidden flex items-stretch hover:shadow-sm transition-shadow"
               >
+                {/* farbiger linker Rand */}
+                <div className={`w-1.5 shrink-0 ${statusBarCls}`} />
+                <div className="flex-1 min-w-0 flex flex-wrap items-start gap-3 px-4 py-3">
                 <div className="flex-1 min-w-0 space-y-1.5">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-semibold text-sm text-foreground truncate">
                       {f.testfall_name ?? '(Kein Name)'}
                     </span>
-                    {f.teststatus && (
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${statusCls}`}>
-                        {f.teststatus.label}
-                      </span>
-                    )}
                     {f.prioritaet && priorityCls && (
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${priorityCls}`}>
                         <IconTag size={10} className="shrink-0" />
@@ -326,6 +331,7 @@ export default function AlleTestfaellePage() {
                   >
                     <IconTrash size={14} className="shrink-0" />
                   </button>
+                </div>
                 </div>
               </div>
             );
