@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import type { TestfallErfassung } from '@/types/app';
-import { LOOKUP_OPTIONS } from '@/types/app';
+import { LOOKUP_OPTIONS, APP_IDS } from '@/types/app';
 import { LivingAppsService } from '@/services/livingAppsService';
 import { AI_PHOTO_SCAN, AI_PHOTO_LOCATION } from '@/config/ai-features';
 import { formatDate } from '@/lib/formatters';
+import { executeAction, downloadFile, fetchActionsAndFiles } from '@/lib/actions-agent';
 import { TestfallErfassungDialog } from '@/components/dialogs/TestfallErfassungDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ import {
 import {
   IconArrowLeft, IconPlus, IconPencil, IconTrash, IconSearch,
   IconAlertCircle, IconClipboardList, IconCalendar, IconUser, IconTag,
+  IconFileExport, IconLoader2,
 } from '@tabler/icons-react';
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -48,6 +50,32 @@ export default function AlleTestfaellePage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editRecord, setEditRecord] = useState<TestfallErfassung | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<TestfallErfassung | null>(null);
+  const [exportingIds, setExportingIds] = useState<Set<string>>(new Set());
+
+  async function handleExport(record: TestfallErfassung) {
+    const id = record.record_id;
+    setExportingIds(prev => new Set(prev).add(id));
+    try {
+      const result = await executeAction(APP_IDS.TESTFALL_ERFASSUNG, 'export_testcase_word', { record_id: id });
+      if (result.error) return;
+      const stdout = result.stdout?.trim() ?? '';
+      if (stdout.startsWith('http')) {
+        const filename = stdout.split('/').pop() ?? 'testfall.docx';
+        await downloadFile(stdout, filename);
+      } else {
+        // Dateiliste aktualisieren und neueste Datei herunterladen
+        const { files } = await fetchActionsAndFiles();
+        const appFiles = files
+          .filter(f => f.app_id === APP_IDS.TESTFALL_ERFASSUNG)
+          .sort((a, b) => b.created_at.localeCompare(a.created_at));
+        if (appFiles.length > 0) {
+          await downloadFile(appFiles[0].url, appFiles[0].filename);
+        }
+      }
+    } finally {
+      setExportingIds(prev => { const s = new Set(prev); s.delete(id); return s; });
+    }
+  }
 
   const priorityOptions = LOOKUP_OPTIONS['testfall_erfassung']?.prioritaet ?? [];
   const ergebnisOptions = LOOKUP_OPTIONS['testfall_erfassung']?.testergebnis ?? [];
@@ -227,6 +255,16 @@ export default function AlleTestfaellePage() {
                   </div>
                 </div>
                 <div className="flex gap-1 shrink-0">
+                  <button
+                    onClick={() => handleExport(r)}
+                    disabled={exportingIds.has(r.record_id)}
+                    title="Als Word exportieren"
+                    className="p-1.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                  >
+                    {exportingIds.has(r.record_id)
+                      ? <IconLoader2 size={14} className="shrink-0 animate-spin" />
+                      : <IconFileExport size={14} className="shrink-0" />}
+                  </button>
                   <button
                     onClick={() => { setEditRecord(r); setDialogOpen(true); }}
                     className="p-1.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
