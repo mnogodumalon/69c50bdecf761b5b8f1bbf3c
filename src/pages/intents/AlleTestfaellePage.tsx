@@ -55,8 +55,19 @@ export default function AlleTestfaellePage() {
   async function handleExport(record: TestfallErfassung) {
     const id = record.record_id;
     setExportingIds(prev => new Set(prev).add(id));
+    const abg = statusStats.abgeschlossen;
+    const pct = (n: number) => abg > 0 ? `${Math.round((n / abg) * 100)} %` : '–';
     try {
-      const result = await executeAction(APP_IDS.TESTFALL_ERFASSUNG, 'export_testcase_word', { record_id: id });
+      const result = await executeAction(APP_IDS.TESTFALL_ERFASSUNG, 'export_testcase_word', {
+        record_id: id,
+        statistik_offen: statusStats.offen,
+        statistik_in_bearbeitung: statusStats.in_bearbeitung,
+        statistik_abgeschlossen: statusStats.abgeschlossen,
+        statistik_blockiert: statusStats.blockiert,
+        statistik_offen_pct: pct(statusStats.offen),
+        statistik_in_bearbeitung_pct: pct(statusStats.in_bearbeitung),
+        statistik_blockiert_pct: pct(statusStats.blockiert),
+      });
       if (result.error) return;
       const stdout = result.stdout?.trim() ?? '';
       if (stdout.startsWith('http')) {
@@ -76,6 +87,15 @@ export default function AlleTestfaellePage() {
       setExportingIds(prev => { const s = new Set(prev); s.delete(id); return s; });
     }
   }
+
+  const statusStats = useMemo(() => {
+    const counts = { offen: 0, in_bearbeitung: 0, abgeschlossen: 0, blockiert: 0 };
+    for (const r of testfallErfassung) {
+      const key = r.fields.teststatus?.key ?? '';
+      if (key in counts) counts[key as keyof typeof counts]++;
+    }
+    return counts;
+  }, [testfallErfassung]);
 
   const priorityOptions = LOOKUP_OPTIONS['testfall_erfassung']?.prioritaet ?? [];
   const ergebnisOptions = LOOKUP_OPTIONS['testfall_erfassung']?.testergebnis ?? [];
@@ -138,6 +158,35 @@ export default function AlleTestfaellePage() {
         <h1 className="text-2xl font-bold text-foreground mt-2">Alle Testfälle</h1>
         <p className="text-sm text-muted-foreground mt-0.5">Vollständige Liste aller erfassten Testfälle</p>
       </div>
+
+      {/* ── Status-Statistik ── */}
+      {(() => {
+        const abg = statusStats.abgeschlossen;
+        const fmt = (n: number) => abg > 0 ? `${Math.round((n / abg) * 100)} %` : '–';
+        const stats = [
+          { key: 'offen',         label: 'Offen',          count: statusStats.offen,          cls: 'border-blue-200 bg-blue-50',   badgeCls: 'bg-blue-100 text-blue-700 border-blue-200'   },
+          { key: 'in_bearbeitung',label: 'In Bearbeitung', count: statusStats.in_bearbeitung,  cls: 'border-amber-200 bg-amber-50', badgeCls: 'bg-amber-100 text-amber-700 border-amber-200' },
+          { key: 'abgeschlossen', label: 'Abgeschlossen',  count: statusStats.abgeschlossen,   cls: 'border-green-200 bg-green-50', badgeCls: 'bg-green-100 text-green-700 border-green-200' },
+          { key: 'blockiert',     label: 'Blockiert',      count: statusStats.blockiert,       cls: 'border-red-200 bg-red-50',     badgeCls: 'bg-red-100 text-red-700 border-red-200'       },
+        ];
+        return (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {stats.map(s => (
+              <div key={s.key} className={`rounded-2xl border ${s.cls} px-4 py-3 flex flex-col gap-1.5`}>
+                <span className={`self-start inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${s.badgeCls}`}>
+                  {s.label}
+                </span>
+                <span className="text-2xl font-bold text-foreground leading-none">{s.count}</span>
+                <span className="text-xs text-muted-foreground">
+                  {s.key === 'abgeschlossen'
+                    ? 'Referenzwert'
+                    : `${fmt(s.count)} von Abgeschlossen`}
+                </span>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
 
       {/* ── Toolbar ── */}
       <div className="flex flex-wrap gap-2 items-center">
